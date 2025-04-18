@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     schema: recipeSchema,
     prompt: `You are a helpful culinary assistant. Generate a complete, clear, and easy-to-follow recipe for "${recipePrompt}".
 
-Provide the following details:
+      Provide the following details:
 - A concise, engaging description (optional).
 - Estimated prep time (optional).
 - Estimated cook time (optional).
@@ -36,7 +36,7 @@ Provide the following details:
 Ensure the instructions are numbered and easy to understand for a home cook. Format the output according to the provided schema.`,
 
     onError: (error) => {
-      console.error("Error generating recipe on server:", error);
+      console.error("Error generating recipe on server:", error.error);
     },
   });
 

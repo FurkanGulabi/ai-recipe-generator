@@ -1,11 +1,18 @@
 "use client";
 
 import { recipeSchema } from "@/lib/recipe-schema";
-import { recipeSuggestions } from "@/lib/suggestions";
+// Import the full list and the function instead of the pre-selected list
+import {
+  allRecipeSuggestions,
+  getRandomElements,
+  RecipeSuggestion,
+} from "@/lib/suggestions";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { ChefHat, Clock, Loader2, Users } from "lucide-react"; // Import icons
+import { AlertCircle, ChefHat, Clock, Loader2, Users } from "lucide-react"; // Import icons
 import type React from "react";
-import { useState } from "react";
+// Import useState and useEffect
+import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -23,13 +30,24 @@ interface RecipeGeneratorProps {
 export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
   const { object, submit, isLoading, error } = useObject({
     api: "/api/chat",
-    schema: recipeSchema, // Use the enhanced schema
+    schema: recipeSchema, // Use the enhanced schema,
     headers: {
-      //add modelId to the header
       model: modelId,
+    },
+    onError: (error) => {
+      toast.error("Error generating recipe: " + error.message);
     },
   });
   const [inputValue, setInputValue] = useState("");
+  // State to hold the client-side generated suggestions
+  const [clientSuggestions, setClientSuggestions] = useState<
+    RecipeSuggestion[]
+  >([]);
+
+  // Generate suggestions only on the client after mount
+  useEffect(() => {
+    setClientSuggestions(getRandomElements(allRecipeSuggestions, 3));
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +66,7 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
 
   return (
     <div className="space-y-6">
+      {/* ... form ... */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         {/* ... Input and Button remain the same ... */}
         <Input
@@ -69,28 +88,50 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
         </Button>
       </form>
 
-      {error && <p className="text-red-500">Error: {error.message}</p>}
-
-      {/* Display suggestions if no recipe is generated */}
-      {!object?.recipe && !isLoading && !error && (
-        <div className="flex items-center justify-between gap-3 ">
-          {recipeSuggestions.map((suggestion, index) => (
-            <div
-              key={`suggestion-${index}`}
-              className="p-2 border rounded-md flex flex-col w-full cursor-pointer hover:border-muted transition-colors"
-              onClick={() => {
-                setInputValue(suggestion.title);
-                submit({ prompt: suggestion.title });
-              }}
+      {/* ... error handling ... */}
+      {error && (
+        <div className="w-full border border-destructive p-2 flex items-center justify-center flex-row">
+          <AlertCircle className="text-destructive" />
+          <div className="grow">
+            <h3 className="text-xl font-bold text-destructive">Error</h3>
+            <Button
+              onClick={() => window.location.reload()}
+              variant={"destructive"}
+              className="cursor-pointer hover:bg-destructive/10"
             >
-              <p>{suggestion.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {suggestion.description}
-              </p>
-            </div>
-          ))}
+              Retry
+            </Button>
+          </div>
         </div>
       )}
+
+      {/* Display suggestions if no recipe is generated and suggestions are ready */}
+      {!object?.recipe &&
+        !isLoading &&
+        !error &&
+        clientSuggestions.length > 0 && (
+          <Suspense fallback={<div>Loading suggestions...</div>}>
+            <div className="flex justify-between gap-3">
+              {/* Use clientSuggestions state here */}
+              {clientSuggestions.map((suggestion, index) => (
+                <div
+                  key={`suggestion-${index}`}
+                  className="p-2 border grow h-20 rounded-md flex flex-col w-full cursor-pointer hover:border-muted transition-colors"
+                  onClick={() => {
+                    setInputValue(suggestion.title);
+                    submit({ prompt: suggestion.title });
+                  }}
+                >
+                  <p>{suggestion.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {suggestion.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Suspense>
+        )}
+      {/* ... loading state ... */}
       {/* Display loading state more prominently */}
       {isLoading && !object?.recipe && (
         <div className="flex justify-center items-center p-8">
@@ -99,6 +140,7 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
         </div>
       )}
 
+      {/* ... recipe card ... */}
       {object?.recipe && (
         <Card>
           <CardHeader>

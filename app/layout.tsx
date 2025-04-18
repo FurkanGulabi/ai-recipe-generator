@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Lora, Nunito_Sans } from "next/font/google";
 import "./globals.css";
@@ -93,6 +94,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen">
         <>
+          <Toaster />
           <Header />
           {children}
         </>
