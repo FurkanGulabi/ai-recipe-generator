@@ -1,7 +1,6 @@
 import { DEFAULT_AI_MODEL } from "@/lib/models";
 import { models } from "@/lib/providers";
 import { recipeSchema } from "@/lib/recipe-schema";
-import { openai } from "@ai-sdk/openai";
 import { streamObject } from "ai";
 import { headers } from "next/headers";
 
