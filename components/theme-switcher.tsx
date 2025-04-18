@@ -42,7 +42,6 @@ const ThemeSwitcher = () => {
       size={"icon"}
       ref={ref}
       onClick={handleToggleTheme}
-      className="absolute top-3 left-3 z-50"
     >
       <Sun className="dark:hidden h-[1.2rem] w-[1.2rem]" />
       <Moon className="hidden dark:block h-[1.2rem] w-[1.2rem]" />

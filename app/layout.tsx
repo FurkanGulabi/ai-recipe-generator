@@ -1,3 +1,5 @@
+import Header from "@/components/header";
+import ModelSelector from "@/components/model-selector";
 import ThemeSwitcher from "@/components/theme-switcher";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -37,7 +39,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen">
         <>
-          <ThemeSwitcher />
+          <Header />
           {children}
         </>
       </body>

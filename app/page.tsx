@@ -1,8 +1,13 @@
 import RecipeGenerator from "@/components/recipe-generator";
+import { DEFAULT_AI_MODEL } from "@/lib/models";
 import { Loader2 } from "lucide-react";
+import { cookies } from "next/headers";
 import { FC, Suspense } from "react";
 
-const HomePage: FC = () => {
+const HomePage: FC = async () => {
+  const cookieStore = await cookies();
+  const modelIdFromCookie = cookieStore.get("ai-model");
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
@@ -24,7 +29,9 @@ const HomePage: FC = () => {
               </div>
             }
           >
-            <RecipeGenerator />
+            <RecipeGenerator
+              modelId={modelIdFromCookie?.value ?? DEFAULT_AI_MODEL}
+            />
           </Suspense>
         </div>
       </div>

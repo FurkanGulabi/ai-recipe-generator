@@ -16,10 +16,18 @@ import {
 } from "./ui/card"; // Added CardDescription, CardFooter
 import { Input } from "./ui/input";
 
-export default function RecipeGenerator() {
+interface RecipeGeneratorProps {
+  modelId: string;
+}
+
+export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
   const { object, submit, isLoading, error } = useObject({
     api: "/api/chat",
     schema: recipeSchema, // Use the enhanced schema
+    headers: {
+      //add modelId to the header
+      model: modelId,
+    },
   });
   const [inputValue, setInputValue] = useState("");
 
