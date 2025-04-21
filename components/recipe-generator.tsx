@@ -31,11 +31,26 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
   const { object, submit, isLoading, error } = useObject({
     api: "/api/chat",
     schema: recipeSchema, // Use the enhanced schema,
+
     headers: {
       model: modelId,
     },
+
     onError: (error) => {
-      toast.error("Error generating recipe: " + error.message);
+      if (error.message == "rate_limit_exceded") {
+        toast.error("Rate limit exceeded. Please try again later.");
+      } else if (error.message === "no_prompt") {
+        toast.error("Please enter a dish name.");
+      } else if (error.message === "no_response") {
+        toast.error("Something went wrong. Please try again.");
+      } else {
+        toast.error("An error occurred. Please try again.");
+        console.log(error.message);
+      }
+    },
+    onFinish: (data) => {
+      // Handle the finished data here if needed
+      console.log("Recipe generated:", data);
     },
   });
   const [inputValue, setInputValue] = useState("");

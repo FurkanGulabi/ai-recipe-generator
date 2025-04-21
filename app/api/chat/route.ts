@@ -1,5 +1,6 @@
 import { DEFAULT_AI_MODEL } from "@/lib/models";
 import { models } from "@/lib/providers";
+import { RateLimiter } from "@/lib/rate-limiter";
 import { recipeSchema } from "@/lib/recipe-schema";
 import { streamObject } from "ai";
 import { headers } from "next/headers";
@@ -11,11 +12,25 @@ export async function POST(req: Request) {
   const headerStore = await headers();
   const request = await req.json();
   const model = headerStore.get("model") ?? DEFAULT_AI_MODEL;
+  const ip = headerStore.get("x-forwarded-for") ?? "anonymous";
+
+  const { success, reset, remaining } = await RateLimiter.limit(ip);
+
+  if (!success) {
+    const now = Date.now();
+    const resetIn = Math.ceil((reset - now) / 1000 / 60); // minutes rounded up
+    return new Response("rate_limit_exceded", {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 
   const { prompt: recipePrompt } = request;
 
   if (!recipePrompt) {
-    return new Response("Prompt is required", { status: 400 });
+    return new Response("no_prompt", { status: 400 });
   }
 
   const result = streamObject({
@@ -41,5 +56,11 @@ Ensure the instructions are numbered and easy to understand for a home cook. For
   });
 
   // Use toAIStreamResponse when using useObject on the client
-  return result.toTextStreamResponse();
+  return result.toTextStreamResponse({
+    headers: {
+      "Content-Type": "application/json",
+      "X-RateLimit-Limit": remaining.toString(),
+      "X-RateLimit-Remaining": remaining.toString(),
+    },
+  });
 }
