@@ -28,7 +28,7 @@ const ModelSelector = ({ modelId }: ModelSelectorProps) => {
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger
         asChild
-        className="w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+        className=" min-w-[160px] data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
       >
         <Button
           data-testid="model-selector"
