@@ -9,7 +9,7 @@ const HomePage: FC = async () => {
   const modelIdFromCookie = cookieStore.get("ai-model");
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-fit bg-background text-foreground">
       <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3 justify-center sm:text-5xl lg:text-6xl mb-4">
