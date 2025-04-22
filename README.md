@@ -37,6 +37,8 @@ A modern web application that generates detailed culinary recipes using AI. Buil
    ```
    OPENAI_API_KEY=""
    GOOGLE_GENERATIVE_AI_API_KEY=""
+   UPSTASH_REDIS_REST_URL=""
+   UPSTASH_REDIS_REST_TOKEN=""
    ```
 4. Run the development server:
    ```bash
