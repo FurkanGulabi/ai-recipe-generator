@@ -9,19 +9,17 @@ interface AIModel {
 export const AIModels: AIModel[] = [
   {
     id: "smart-model",
-    name: "Smart Model",
-    description: "A smart model that provides accurate and relevant responses.",
+    name: "Quick Chef",
+    description: "⚡ Quick & easy recipes for everyday meals.",
   },
   {
     id: "smarter-model",
-    name: "Smarter Model",
-    description:
-      "A smarter model that provides even more accurate and relevant responses.",
+    name: "Flavor Master",
+    description: "🧠 More creative recipes with smart ingredient pairing.",
   },
   {
     id: "smartest-model",
-    name: "Smartest Model",
-    description:
-      "The smartest model that provides the most accurate and relevant responses.",
+    name: "Gourmet Genius",
+    description: "🌟 Gourmet-level recipes with dietary options.",
   },
 ];

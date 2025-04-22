@@ -8,11 +8,16 @@ import {
   RecipeSuggestion,
 } from "@/lib/suggestions";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { AlertCircle, ChefHat, Clock, Loader2, Users } from "lucide-react"; // Import icons
+import { Annoyed, ChefHat, Clock, Loader2, Users } from "lucide-react"; // Import icons
 import type React from "react";
 // Import useState and useEffect
+import { useLimit } from "@/hooks/use-limit";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { mutate } from "swr";
+import RecipeError from "./recipe-error";
+import RecipeNoLimit from "./recipe-nolimit";
+import RemainingTooltip from "./remaining-tooltip";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -28,6 +33,12 @@ interface RecipeGeneratorProps {
 }
 
 export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
+  const {
+    error: limitError,
+    isLoading: isLimitLoading,
+    isLimitReached,
+    resetAtEpoch,
+  } = useLimit(); // Fetch the limit data
   const { object, submit, isLoading, error } = useObject({
     api: "/api/chat",
     schema: recipeSchema, // Use the enhanced schema,
@@ -48,9 +59,10 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
         console.log(error.message);
       }
     },
-    onFinish: (data) => {
+    onFinish: async (data) => {
       // Handle the finished data here if needed
       console.log("Recipe generated:", data);
+      await mutate("/api/limit"); // Refresh the limit data after a successful request
     },
   });
   const [inputValue, setInputValue] = useState("");
@@ -82,47 +94,43 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
   return (
     <div className="space-y-6">
       {/* ... form ... */}
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex gap-2 relative">
         {/* ... Input and Button remain the same ... */}
         <Input
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Enter a dish name (e.g., Chocolate Chip Cookies)"
-          disabled={isLoading}
+          disabled={isLoading || isLimitReached}
           className="flex-grow"
         />
-        <Button type="submit" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="min-w-[140px]"
+          disabled={isLoading || isLimitReached}
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
             </>
+          ) : isLimitReached ? (
+            <Annoyed />
           ) : (
             "Generate Recipe"
           )}
         </Button>
+        <RemainingTooltip />
       </form>
 
-      {/* ... error handling ... */}
-      {error && (
-        <div className="w-full border border-destructive p-2 flex items-center justify-center flex-row">
-          <AlertCircle className="text-destructive" />
-          <div className="grow">
-            <h3 className="text-xl font-bold text-destructive">Error</h3>
-            <Button
-              onClick={() => window.location.reload()}
-              variant={"destructive"}
-              className="cursor-pointer hover:bg-destructive/10"
-            >
-              Retry
-            </Button>
-          </div>
-        </div>
-      )}
+      {isLimitReached && <RecipeNoLimit resetAtEpoch={resetAtEpoch} />}
+      {error && limitError && <RecipeError />}
 
       {/* Display suggestions if no recipe is generated and suggestions are ready */}
       {!object?.recipe &&
         !isLoading &&
+        !isLimitLoading &&
+        !isLimitReached &&
+        !limitError &&
         !error &&
         clientSuggestions.length > 0 && (
           <Suspense fallback={<div>Loading suggestions...</div>}>

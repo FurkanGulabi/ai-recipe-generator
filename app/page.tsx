@@ -1,6 +1,6 @@
 import RecipeGenerator from "@/components/recipe-generator";
 import { DEFAULT_AI_MODEL } from "@/lib/models";
-import { Loader2 } from "lucide-react";
+import { ChefHat, Loader2 } from "lucide-react";
 import { cookies } from "next/headers";
 import { FC, Suspense } from "react";
 
@@ -12,12 +12,12 @@ const HomePage: FC = async () => {
     <main className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl mb-4">
-            Recipe AI
+          <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3 justify-center sm:text-5xl lg:text-6xl mb-4">
+            <ChefHat className="size-20" /> Recipe AI
           </h1>
           <p className="text-lg text-muted-foreground mb-10">
-            Enter any dish name and our AI will generate a complete recipe with
-            ingredients and step-by-step instructions.
+            Enter your meal or food description and our AI will generate a
+            complete recipe.
           </p>
         </div>
         <div className="max-w-3xl mx-auto">

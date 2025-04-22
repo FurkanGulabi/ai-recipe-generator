@@ -14,16 +14,13 @@ export async function POST(req: Request) {
   const model = headerStore.get("model") ?? DEFAULT_AI_MODEL;
   const ip = headerStore.get("x-forwarded-for") ?? "anonymous";
 
-  const { success, reset, remaining } = await RateLimiter.limit(ip);
+  const { remaining } = await RateLimiter.getRemaining(ip);
 
-  if (!success) {
-    const now = Date.now();
-    const resetIn = Math.ceil((reset - now) / 1000 / 60); // minutes rounded up
-    return new Response("rate_limit_exceded", {
+  console.log("Remaining requests:", remaining); // Log the remaining requests for debugging
+
+  if (remaining <= 0) {
+    return new Response("rate_limit_exceeded", {
       status: 429,
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
   }
 
@@ -53,14 +50,12 @@ Ensure the instructions are numbered and easy to understand for a home cook. For
     onError: (error) => {
       console.error("Error generating recipe on server:", error.error);
     },
+    onFinish: async () => {
+      // Decrement the rate limit counter when the request is finished
+      await RateLimiter.limit(ip);
+    },
   });
 
   // Use toAIStreamResponse when using useObject on the client
-  return result.toTextStreamResponse({
-    headers: {
-      "Content-Type": "application/json",
-      "X-RateLimit-Limit": remaining.toString(),
-      "X-RateLimit-Remaining": remaining.toString(),
-    },
-  });
+  return result.toTextStreamResponse();
 }
