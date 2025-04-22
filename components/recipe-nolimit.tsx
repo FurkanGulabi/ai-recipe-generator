@@ -6,8 +6,6 @@ interface RecipeNoLimitProps {
 }
 
 export default function RecipeNoLimit({ resetAtEpoch }: RecipeNoLimitProps) {
-  console.log("resetAtEpoch", resetAtEpoch);
-
   // Convert milliseconds to seconds if needed
   const epochInSeconds =
     resetAtEpoch > 10000000000 ? Math.floor(resetAtEpoch / 1000) : resetAtEpoch;

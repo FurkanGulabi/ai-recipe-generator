@@ -55,11 +55,9 @@ export default function RecipeGenerator({ modelId }: RecipeGeneratorProps) {
         toast.error("Something went wrong. Please try again.");
       } else {
         toast.error("An error occurred. Please try again.");
-        console.log(error.message);
       }
     },
     onFinish: async (data) => {
-      console.log("Recipe generated:", data);
       await mutate("/api/limit");
     },
   });

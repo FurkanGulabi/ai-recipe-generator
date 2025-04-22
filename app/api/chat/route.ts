@@ -16,8 +16,6 @@ export async function POST(req: Request) {
 
   const { remaining } = await RateLimiter.getRemaining(ip);
 
-  console.log("Remaining requests:", remaining); // Log the remaining requests for debugging
-
   if (remaining <= 0) {
     return new Response("rate_limit_exceeded", {
       status: 429,
